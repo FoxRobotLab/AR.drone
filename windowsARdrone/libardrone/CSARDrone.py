@@ -10,7 +10,7 @@ class PatternFollow(threading.Thread):
         self.drone = libardrone.ARDrone(True)
         self.lock = threading.Lock()
         self.runFlag = True
-        self.mcs = MultiCamShift(self.drone, self, trackColors = ["green", "blue"])
+        self.mcs = MultiCamShift(self.drone, self, trackColors = ["pink", "blue"])
         self.mcs.start()
         self.width, self.height = self.mcs.getFrameDims()
         self.cx, self.cy = self.width / 2, self.height / 2
@@ -20,16 +20,16 @@ class PatternFollow(threading.Thread):
     def run(self):
         self.drone.speed = 1
         time.sleep(1)
-        self.drone.takeoff()
+        #self.drone.takeoff()
         time.sleep(2.5)
         runFlag = True
         while runFlag:
             time.sleep(1)
-            matchState = self.mcs.getHorzMarkerInfo(outerColor = "green", centerColor = "blue")
+            matchState = self.mcs.getHorzMarkerInfo(outerColor = "pink", centerColor = "blue")
             if matchState != None:
                 print "CSARDrone says: matchstate =", matchState
                 self.patternReact(matchState)
-                self.drone.hover()
+                #self.drone.hover()
             with self.lock:
                 runFlag = self.runFlag
         quit()

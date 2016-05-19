@@ -50,6 +50,7 @@ class MultiCamShift(threading.Thread):
                 time = datetime.now().strftime('%Y-%m-%d-%H%M%S')
                 filename = "cap-" + time + ".jpg"
                 path = ".." + os.path.join(os.sep, "res", "captures", filename)
+                print(path)
                 cv2.imwrite(path, image)
                 print("Image Saved")
             elif key == 'q' or key == ' ':

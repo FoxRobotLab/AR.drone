@@ -5,7 +5,7 @@ Uses libardrone. Includes demo programs.
 
 #### AR Drone Code (AR.drone\libardrone)
 
-__ar2video__ is just video encoding
+__ar2video__ is just video encoding -- it's a wrapper for h264decoder
 
 __arnetwork__ handles video input from camera and “nav_socket” input, whatever that is
 

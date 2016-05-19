@@ -26,7 +26,7 @@ class PatternFollow:  ## removed the thread part of this
         while runFlag:
 
             time.sleep(1)
-            img = self.drone.image
+            # img = self.drone.image
             # cv2.imshow("FOOBAR", img)
 
             x = cv2.waitKey(30)

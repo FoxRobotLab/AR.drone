@@ -38,7 +38,7 @@ class PatternFollow:  ## removed the thread part of this
             if matchState != None:
                 print("CSARDrone says: matchstate =", matchState)
             #     self.patternReact(matchState)
-            #     ##self.drone.hover()
+            #     self.drone.hover()
             with self.lock:
                 runFlag = self.runFlag
         self.quit()

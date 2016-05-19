@@ -20,7 +20,7 @@ __FoxDemo__  controls drone for demo. Also uses keyboard (but with keyevents thi
 __libardrone__ contains most of the tools for drone movement/manipulation. Three main sections: the first defines higher-level operations in terms of the low-level at (action type?) controls; the second defines said at controls (it looks like mostly this is just wrappers?); and the third claims to handle navdata packets (?).
 It finishes with a testing method that allows manual control using keyboard commands. 
 
-__MultiCamShift__ we are wondering about what outer and inner color means here . This handles the OpenCV work of finding the target in the image from the drone. Finds x, y position, relative area, and angle of marker. Uses TargetScanner to find markers. 
+__MultiCamShift__ we are wondering about what outer and inner color means here . This handles the OpenCV work of finding the target in the image from the drone. Finds x, y position, relative area, and angle of marker. Uses __TargetScanner__ to find markers. Looking for a pattern of green/blue/green in a row. 
 
 
 __Tracker__ is used by __targetScanner__ is used by __MultiCamShift__ is used by __CSARDrone__.

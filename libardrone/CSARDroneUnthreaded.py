@@ -10,7 +10,7 @@ class PatternFollow:  ## removed the thread part of this
         self.drone = libardrone.ARDrone(True)
         self.lock = threading.Lock()
         self.runFlag = True
-        self.mcs = MultiCamShift(self.drone, self, trackColors = ["green", "blue"])
+        self.mcs = MultiCamShift(self.drone, self, trackColors = ["pink", "blue"])
         self.mcs.start()
         self.width, self.height, self.depth = self.drone.image_shape #self.mcs.getFrameDims()
         self.cx, self.cy = self.width / 2, self.height / 2
@@ -25,20 +25,20 @@ class PatternFollow:  ## removed the thread part of this
         runFlag = True
         while runFlag:
 
-            #time.sleep(1)
+            time.sleep(1)
             img = self.drone.image
-            cv2.imshow("FOOBAR", img)
+            # cv2.imshow("FOOBAR", img)
 
             x = cv2.waitKey(30)
             if x != -1:
                 ch = chr(x & 255)
                 if ch == 'q':
                     break
-            #matchState = self.mcs.getHorzMarkerInfo(outerColor = "green", centerColor = "blue")
-            #if matchState != None:
-                #print "CSARDrone says: matchstate =", matchState
-                #self.patternReact(matchState)
-                ##self.drone.hover()
+            matchState = self.mcs.getHorzMarkerInfo(outerColor = "pink", centerColor = "blue")
+            if matchState != None:
+                print("CSARDrone says: matchstate =", matchState)
+            #     self.patternReact(matchState)
+            #     ##self.drone.hover()
             with self.lock:
                 runFlag = self.runFlag
         self.quit()
@@ -57,15 +57,15 @@ class PatternFollow:  ## removed the thread part of this
         angleScore = abs(angle / 90) * 1.5
         
         areaScore = abs(max((1 - relativeArea / self.targetRelativeArea), -1))
-        
-        print "Angle", angle
-        print "________________________"
-        print "CSARDrone"
-        print "xScore =", xScore
-        print "yScore =", yScore
-        print "angleScore =", angleScore
-        print "areaScore =", areaScore
-        
+
+        print("Angle", angle)
+        print("________________________")
+        print("CSARDrone")
+        print("xScore =", xScore)
+        print("yScore =", yScore)
+        print("angleScore =", angleScore)
+        print("areaScore =", areaScore)
+
         scores = [("xScore", xScore), ("areaScore", areaScore), ("angleScore", angleScore), ("yScore", yScore)]
         
         bestName, bestScore = scores[0]
@@ -81,35 +81,35 @@ class PatternFollow:  ## removed the thread part of this
         if bestName == "xScore":
             if x < self.cx:
                 self.drone.turn_left()
-                print "turn_left"
+                print("turn_left")
             else:
                 self.drone.turn_right()
-                print "turn_right"
+                print("turn_right")
             time.sleep(0.09)
         elif bestName == "angleScore":
             if angle > 0.0:
                 self.drone.move_left()
-                print "move_left"
+                print("move_left")
             else:
                 self.drone.move_right()
-                print "move_right"
+                print("move_right")
             time.sleep(0.43)
         elif bestName == "areaScore":
             if relativeArea < self.targetRelativeArea:
                 self.drone.move_forward()
-                print "move_forward"
+                print("move_forward")
             else:
                 self.drone.move_backward()
-                print "move_backward"
+                print("move_backward")
             time.sleep(0.45)
         elif bestName == "yScore":
             #height indexes from the top down
             if y > self.cy:
                 self.drone.move_down()
-                print "move_down"
+                print("move_down")
             else:
                 self.drone.move_up()
-                print "move_up"
+                print("move_up")
             time.sleep(0.2)
 
 

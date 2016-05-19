@@ -35,32 +35,28 @@ class MultiCamShift(threading.Thread):
         #for the AR.Drone program: ignores colors that are at within this distance to the edge of the screen
         self.horzMarkerBorder = self.fWidth / 14
         self.vertMarkerBorder = self.fHeight / 10
-        
-        
+
+
     def run(self):
         """Will run the tracking program on the video from vid_src."""
         running = True
         cv2.namedWindow("Drone Camera")
-
         while running:
             image = self.drone.image.copy()
             red, green, blue = cv2.split(image)
             image = cv2.merge((blue, green, red))
-            frame = self.update(image)
-
-
             key = chr(cv2.waitKey(33) & 255)
             if key == 't':
                 time = datetime.now().strftime('%Y-%m-%d-%H%M%S')
                 filename = "cap-" + time + ".jpg"
                 path = ".." + os.path.join(os.sep, "res", "captures", filename)
+                print(path)
                 cv2.imwrite(path, image)
                 print("Image Saved")
             elif key == 'q' or key == ' ':
                 self.parent.quit()
-
-            cv2.imshow("Drone Camera", image)
-
+            frame = self.update(image)
+            cv2.imshow("Drone Camera", frame)
             with self.lock:
                 running = self.running
         print("Quitting MCS")

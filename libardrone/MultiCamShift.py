@@ -51,7 +51,10 @@ class MultiCamShift(threading.Thread):
 
             key = chr(cv2.waitKey(33) & 255)
             if key == 't':
-                cv2.imwrite("/Users/Rhohle/Projects/AR.drone/res/captures/cap-" + str(datetime.now()) + ".jpg", image)
+                time = datetime.now().strftime('%Y-%m-%d-%H%M%S')
+                filename = "cap-" + time + ".jpg"
+                path = ".." + os.path.join(os.sep, "res", "captures", filename)
+                cv2.imwrite(path, image)
                 print("Image Saved")
             elif key == 'q' or key == ' ':
                 self.parent.quit()

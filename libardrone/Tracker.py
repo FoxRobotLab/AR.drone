@@ -41,8 +41,7 @@ class Tracker(object):
         c,r,w,h = self.track_window
         
         #Erases the area around the track_window inside the backprojection so the next tracker doesn't see it
-        bproj[math.ceil(0.95*(r)):math.ceil(1.05*(r+h)), math.ceil(0.95*(c)):math.ceil(1.05*(c+w))] = 0
-        
+        bproj[int(math.ceil(0.95 * (r))):int(math.ceil(1.05 * (r + h))), int(math.ceil(0.95 * (c))):int(math.ceil(1.05 * (c + w)))] = 0
         self.sinceLastCheck += 1
         return self.track_rect, bproj, split
     

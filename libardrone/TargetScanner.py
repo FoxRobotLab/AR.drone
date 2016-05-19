@@ -1,5 +1,6 @@
 import numpy as np
 import cv2
+import os
 
 from Tracker import *
 
@@ -11,12 +12,12 @@ class TargetScanner(object):
         self.fWidth, self.fHeight = frame_dims
         #Full window, useful for reseting track windows
         self.full_track_window = (0,0,self.fWidth,self.fHeight)
-        
 
-        # Only direct references to the files seemed to work here
-        # TODO: Make this not hardcoded! Until then... Change this path name when using this file.
+        fullStr = object_name + ".jpg"
+        path = ".." + os.path.join(os.sep, "res", "images", fullStr)
+
         try:
-            self.object_image = cv2.imread("/Users/Rhohle/Projects/AR.drone/res/images/" + object_name + ".jpg")
+            self.object_image = cv2.imread(path)
         except:
             print(object_name + " image could not be read")
 

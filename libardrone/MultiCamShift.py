@@ -41,18 +41,23 @@ class MultiCamShift(threading.Thread):
         """Will run the tracking program on the video from vid_src."""
         running = True
         cv2.namedWindow("Drone Camera")
+        # blueTest = cv2.imread("/Users/Rhohle/Projects/AR.drone/res/images/blue.jpg")
         while running:
             image = self.drone.image.copy()
             red, green, blue = cv2.split(image)
             image = cv2.merge((blue, green, red))
+            frame = self.update(image)
+
+            cv2.imshow("Drone Camera", image)
+
             key = chr(cv2.waitKey(33) & 255)
             if key == 't':
-                cv2.imwrite("/home/evan/Programming/Research/Summer2014/AR.drone/res/captures/cap-" + str(datetime.now()) + ".jpg", image)
+                cv2.imwrite("/Users/Rhohle/Projects/AR.drone/res/captures/cap-" + str(datetime.now()) + ".jpg", image)
                 print("Image Saved")
             elif key == 'q' or key == ' ':
                 self.parent.quit()
-            frame = self.update(image)
-            cv2.imshow("Drone Camera", frame)
+            # cv2.imshow("Drone Camera", frame)
+
             with self.lock:
                 running = self.running
         print("Quitting MCS")

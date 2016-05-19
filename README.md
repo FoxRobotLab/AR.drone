@@ -11,7 +11,7 @@ __arnetwork__ handles video input from camera and “nav_socket” input, whatev
 
 __arvideo__ does all the video decoding - it’s a very large and very gross file (lots of hardcoding, repetition) so hopefully we won’t have to read it all?
 
-__CSARDrone__ uses __MultiCamShift__(_mcs_) to orient drone to center target in vision. Tracks green and blue. 
+__CSARDrone__ uses __MultiCamShift__(_mcs_) to orient drone to center target in vision. Tracks green and blue. The original threaded version worked on the Windows machine we tried it on and presumably was originally working on a Linux box. (This remains in the Windows drone code folder.) Strange issues cropped up on Macs, the non-threaded version (in the main folder) should fix these.
 
 __demo__ controls drone for demo (takeoff/land/move/speed). Control drone with keyboard. Accesses drone’s video. (Uses pygame for control.)
 

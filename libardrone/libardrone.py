@@ -588,14 +588,14 @@ if __name__ == "__main__":
                     cv2.waitKey(1)
                 except:
                     if not video_waiting:
-                        print "Video will display when ready"
+                        print("Video will display when ready")
                     video_waiting = True
                     pass
 
             try:
                 c = sys.stdin.read(1)
                 c = c.lower()
-                print "Got character", c
+                print("Got character", c)
                 if c == 'a':
                     drone.move_left()
                 if c == 'd':
@@ -629,18 +629,18 @@ if __name__ == "__main__":
                     try:
                         navdata = drone.get_navdata()
 
-                        print 'Emergency landing =', navdata['drone_state']['emergency_mask']
-                        print 'User emergency landing = ', navdata['drone_state']['user_el']
-                        print 'Navdata type= ', navdata['drone_state']['navdata_demo_mask']
-                        print 'Altitude= ', navdata[0]['altitude']
-                        print 'video enable= ', navdata['drone_state']['video_mask']
-                        print 'vision enable= ', navdata['drone_state']['vision_mask']
-                        print 'command_mask= ', navdata['drone_state']['command_mask']
+                        print('Emergency landing =', navdata['drone_state']['emergency_mask'])
+                        print('User emergency landing = ', navdata['drone_state']['user_el'])
+                        print('Navdata type= ', navdata['drone_state']['navdata_demo_mask'])
+                        print('Altitude= ', navdata[0]['altitude'])
+                        print('video enable= ', navdata['drone_state']['video_mask'])
+                        print('vision enable= ', navdata['drone_state']['vision_mask'])
+                        print('command_mask= ', navdata['drone_state']['command_mask'])
                     except:
                         pass
 
                 if c == 'j':
-                    print "Asking for configuration..."
+                    print("Asking for configuration...")
                     drone.at(at_ctrl, 5)
                     time.sleep(0.5)
                     drone.at(at_ctrl, 4)

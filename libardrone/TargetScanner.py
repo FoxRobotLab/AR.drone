@@ -14,11 +14,12 @@ class TargetScanner(object):
         
 
         # Only direct references to the files seemed to work here
+        # TODO: Make this not hardcoded! Until then... Change this path name when using this file.
         try:
-            self.object_image = cv2.imread("/home/evan/Programming/Research/Summer2014/AR.drone/res/images/" + object_name + ".jpg")
+            self.object_image = cv2.imread("/Users/Rhohle/Projects/AR.drone/res/images/" + object_name + ".jpg")
         except:
-            print object_name + " image could not be read"
-            
+            print(object_name + " image could not be read")
+
         self.averageColor = self.calcAverageColor()        
         
         object_hsv = cv2.cvtColor(self.object_image, cv2.COLOR_BGR2HSV)

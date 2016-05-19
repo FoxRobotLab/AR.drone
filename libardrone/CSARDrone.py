@@ -18,18 +18,18 @@ class PatternFollow(threading.Thread):
 
 
     def run(self):
-        self.drone.speed = 1
-        time.sleep(1)
-        self.drone.takeoff()
-        time.sleep(2.5)
+        # self.drone.speed = 1
+        # time.sleep(1)
+        # self.drone.takeoff()
+        # time.sleep(2.5)
         runFlag = True
         while runFlag:
             time.sleep(1)
             matchState = self.mcs.getHorzMarkerInfo(outerColor = "green", centerColor = "blue")
             if matchState != None:
-                print "CSARDrone says: matchstate =", matchState
+                print("CSARDrone says: matchstate =", matchState)
                 self.patternReact(matchState)
-                self.drone.hover()
+                # self.drone.hover()
             with self.lock:
                 runFlag = self.runFlag
 
@@ -47,15 +47,15 @@ class PatternFollow(threading.Thread):
         angleScore = abs(angle / 90) * 1.5
         
         areaScore = abs(max((1 - relativeArea / self.targetRelativeArea), -1))
-        
-        print "Angle", angle
-        print "________________________"
-        print "CSARDrone"
-        print "xScore =", xScore
-        print "yScore =", yScore
-        print "angleScore =", angleScore
-        print "areaScore =", areaScore
-        
+
+        print("Angle", angle)
+        print("________________________")
+        print("CSARDrone")
+        print("xScore =", xScore)
+        print("yScore =", yScore)
+        print("angleScore =", angleScore)
+        print("areaScore =", areaScore)
+
         scores = [("xScore", xScore), ("areaScore", areaScore), ("angleScore", angleScore), ("yScore", yScore)]
         
         bestName, bestScore = scores[0]
@@ -71,35 +71,35 @@ class PatternFollow(threading.Thread):
         if bestName == "xScore":
             if x < self.cx:
                 self.drone.turn_left()
-                print "turn_left"
+                print("turn_left")
             else:
                 self.drone.turn_right()
-                print "turn_right"
+                print("turn_right")
             time.sleep(0.09)
         elif bestName == "angleScore":
             if angle > 0.0:
                 self.drone.move_left()
-                print "move_left"
+                print("move_left")
             else:
                 self.drone.move_right()
-                print "move_right"
+                print("move_right")
             time.sleep(0.43)
         elif bestName == "areaScore":
             if relativeArea < self.targetRelativeArea:
                 self.drone.move_forward()
-                print "move_forward"
+                print("move_forward")
             else:
                 self.drone.move_backward()
-                print "move_backward"
+                print("move_backward")
             time.sleep(0.45)
         elif bestName == "yScore":
             #height indexes from the top down
             if y > self.cy:
                 self.drone.move_down()
-                print "move_down"
+                print("move_down")
             else:
                 self.drone.move_up()
-                print "move_up"
+                print("move_up")
             time.sleep(0.2)
 
 

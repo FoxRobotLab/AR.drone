@@ -20,7 +20,7 @@ class PatternFollow(threading.Thread):
     def run(self):
         self.drone.speed = 1
         time.sleep(1)
-        #self.drone.takeoff()
+        self.drone.takeoff()
         time.sleep(2.5)
         runFlag = True
         while runFlag:
@@ -29,7 +29,7 @@ class PatternFollow(threading.Thread):
             if matchState != None:
                 print "CSARDrone says: matchstate =", matchState
                 self.patternReact(matchState)
-                #self.drone.hover()
+                self.drone.hover()
             with self.lock:
                 runFlag = self.runFlag
         quit()
@@ -37,7 +37,7 @@ class PatternFollow(threading.Thread):
 
     def patternReact(self, patternInfo):
         """"""
-        (x, y), relativeArea, angle = patternInfo
+        (x, y), relativeArea, angle, _1, _2 = patternInfo
         
         xDiff = abs(x - self.cx)
         xScore = xDiff / (self.width / 2.0) * (7 / 6.0) # because the edges of the frame are cut off in MCS

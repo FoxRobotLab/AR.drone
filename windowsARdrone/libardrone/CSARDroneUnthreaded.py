@@ -6,11 +6,10 @@ import threading
 
 class PatternFollow:  ## removed the thread part of this
     def __init__(self):
-        #threading.Thread.__init__(self)
         self.drone = libardrone.ARDrone(True)
         self.lock = threading.Lock()
         self.runFlag = True
-        self.mcs = MultiCamShift(self.drone, self, trackColors = ["green", "blue"])
+        self.mcs = MultiCamShift(self.drone, self, trackColors = ["pink", "blue"])
         self.mcs.start()
         self.width, self.height, self.depth = self.drone.image_shape #self.mcs.getFrameDims()
         self.cx, self.cy = self.width / 2, self.height / 2
@@ -18,14 +17,12 @@ class PatternFollow:  ## removed the thread part of this
 
 
     def run(self):
-        #self.drone.speed = 1
-        #time.sleep(1)
-        #self.drone.takeoff()
-        #time.sleep(2.5)
+        self.drone.speed = 1
+        time.sleep(1)
+        self.drone.takeoff()
+        time.sleep(2.5)
         runFlag = True
         while runFlag:
-
-            #time.sleep(1)
             img = self.drone.image
             cv2.imshow("FOOBAR", img)
 
@@ -34,11 +31,11 @@ class PatternFollow:  ## removed the thread part of this
                 ch = chr(x & 255)
                 if ch == 'q':
                     break
-            #matchState = self.mcs.getHorzMarkerInfo(outerColor = "green", centerColor = "blue")
-            #if matchState != None:
-                #print "CSARDrone says: matchstate =", matchState
-                #self.patternReact(matchState)
-                ##self.drone.hover()
+            matchState = self.mcs.getHorzMarkerInfo(outerColor = "pink", centerColor = "blue")
+            if matchState != None:
+                print "CSARDrone says: matchstate =", matchState
+                self.patternReact(matchState)
+                self.drone.hover()
             with self.lock:
                 runFlag = self.runFlag
         self.quit()
@@ -46,7 +43,7 @@ class PatternFollow:  ## removed the thread part of this
 
     def patternReact(self, patternInfo):
         """"""
-        (x, y), relativeArea, angle = patternInfo
+        (x, y), relativeArea, angle, _1, _2 = patternInfo
         
         xDiff = abs(x - self.cx)
         xScore = xDiff / (self.width / 2.0) * (7 / 6.0) # because the edges of the frame are cut off in MCS

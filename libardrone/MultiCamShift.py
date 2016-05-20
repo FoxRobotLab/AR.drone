@@ -129,7 +129,7 @@ class MultiCamShift(threading.Thread):
 
         """remember that items in centerData and outerData are of form ((x, y, w, h), score), where
         (x, y) is the center of the item, w and h are the width and height respectively, and score
-        is supposed to be theback projection of the item against the sample it's being compared to, 
+        is supposed to be the back projection of the item against the sample it's being compared to,
         but is actually 0.0 for some unknown reason."""
         def findTriad(centerData, outerData):
             for center in centerData:

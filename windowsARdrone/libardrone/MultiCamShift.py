@@ -108,11 +108,60 @@ class MultiCamShift(threading.Thread):
         if len(outerData) < 2 or len(centerData) == 0:
             self.patternInfo = None
             return None
-        top1CenterByScore = sorted(centerData, key=itemgetter(1), reverse = True)[0]
-        top2OuterByScore = sorted(outerData, key=itemgetter(1), reverse = True)[0:2]
-        left, right = sorted(top2OuterByScore)
+
+        #bestMatch = None
+        #for i in (0, len(centerData)):
+        getcount = itemgetter(1)
+        
+        #print("center data scores", map(getcount, centerData))
+        #print("outer data scores", map(getcount, outerData))
+
+
+        """Checks to see if the edges of two objects have similar x-coords. Pass it i = 1 to check the 
+        left side of the center object (against right side of outer) or i = -1 to check the right side."""
+        def checkIfXclose(i, center, outer):
+            (ox, oy, ow, oh), oScore = outer
+            (cx, cy, cw, ch), cScore = center
+
+            diff = abs((ox + i*ow) - (cx - i*cw))
+            #print("X diff is", diff )
+
+            if diff < 150:
+                return True
+            return False
+
+        def checkIfYclose(center, left, right):
+            return abs(center[0][1] - left[0][1]) < 150 and abs(center[0][1] - right[0][1]) < 150
+
+        """remember that items in centerData and outerData are of form ((x, y, w, h), score), where
+        (x, y) is the center of the item, w and h are the width and height respectively, and score
+        is supposed to be theback projection of the item against the sample it's being compared to, 
+        but is actually 0.0 for some unknown reason."""
+        def findTriad(centerData, outerData):
+            for center in centerData:
+                leftObjects = []
+                rightObjects = []
+                #finds which blocks are directly to the left and right of the center block
+                for outer in outerData:
+                    if checkIfXclose(1, center, outer):
+                        leftObjects.append(outer)
+                    elif checkIfXclose(-1, center, outer):
+                        rightObjects.append(outer)
+                #if there are blocks to the right and left, see if any are also close in y coords
+                if leftObjects and rightObjects:
+                    for left in leftObjects:
+                        for right in rightObjects:
+                            if checkIfYclose(center, left, right):
+                                return center, left, right
+
+        triad = findTriad(centerData, outerData)
+        if triad is None:
+            return None
+        else:
+            center, left, right = triad
+
         (lx, ly, lw, lh), lScore = left
-        (cx, cy, cw, ch), cScore = top1CenterByScore
+        (cx, cy, cw, ch), cScore = center
         (rx, ry, rw, rh), rScore = right
         if not (lx <= cx and cx <= rx):
             self.patternInfo = None
@@ -135,22 +184,6 @@ class MultiCamShift(threading.Thread):
         return self.patternInfo
         #this code should be able to be cleaned up so you just return self.patternInfo
 
-
-    def checkXCoords(self, xCoords):
-        """Checks to see if the x distances are somewhat consistent (Should be close to evenly spaced)"""
-        xCoords = sorted(xCoords)
-        dXs = xCoords[1] - xCoords[0], xCoords[2] - xCoords[1]
-        if max(dXs) / (min(dXs) + 1) < self.horzPatternXRatio:
-            return True
-        return False
-
-
-    def checkYCoords(self, yCoords):
-        """Checks to see if the y coords are close together"""
-        yCoords = sorted(yCoords)
-        if yCoords[2] - yCoords[0] <= self.horzPatternYSpacing:
-            return True
-        return False
 
     def getFrameDims(self):
             """Returns the the dimensions and depth of the camera frame"""

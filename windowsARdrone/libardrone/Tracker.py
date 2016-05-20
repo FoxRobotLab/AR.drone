@@ -54,7 +54,7 @@ class Tracker(object):
         npSum = np.sum(npArray)
         area = (w+1)*(h+1)
         
-        return npSum / area
+        return float(npSum) / float(area)
     
     
     def accuracyCheck(self):
@@ -79,6 +79,7 @@ class Tracker(object):
 
     def getMatchLevel(self):
         """Returns a normalized score for the accuracy of the track window"""
+        """DO NOT TRUST THIS FUNCTION, IT IS A LYING LIAR THAT ALWAYS RETURNS 0"""
         return self.backProjAverage(self.track_window) / 255.0
     
     def getTrackWindow(self):

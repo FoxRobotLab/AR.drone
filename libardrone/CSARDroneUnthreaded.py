@@ -37,7 +37,7 @@ class PatternFollow:  ## removed the thread part of this
             matchState = self.mcs.getHorzMarkerInfo(outerColor = "pink", centerColor = "blue")
             if matchState != None:
                 print("CSARDrone says: matchstate =", matchState)
-            #     self.patternReact(matchState)
+                self.patternReact(matchState)
             #     self.drone.hover()
             with self.lock:
                 runFlag = self.runFlag
@@ -46,8 +46,12 @@ class PatternFollow:  ## removed the thread part of this
 
     def patternReact(self, patternInfo):
         """"""
+        # (x,y) is center point of center color
+        # relativeArea is how big area of two outer colors together is compared to the whole drone image
+        # angle is positive if area of left outer color is smaller than right outer color
         (x, y), relativeArea, angle = patternInfo
-        
+
+        # Scores made to make hierarchy of "issues" with target in drone's view
         xDiff = abs(x - self.cx)
         xScore = xDiff / (self.width / 2.0) * (7 / 6.0) # because the edges of the frame are cut off in MCS
         

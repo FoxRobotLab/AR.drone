@@ -41,6 +41,7 @@ class MultiCamShift(threading.Thread):
         """Will run the tracking program on the video from vid_src."""
         running = True
         cv2.namedWindow("Drone Camera")
+        cv2.startWindowThread()
         while running:
             image = self.drone.image.copy()
             red, green, blue = cv2.split(image)
@@ -55,8 +56,10 @@ class MultiCamShift(threading.Thread):
                 print("Image Saved")
             elif key == 'q' or key == ' ':
                 self.parent.quit()
+
             frame = self.update(image)
             cv2.imshow("Drone Camera", frame)
+
             with self.lock:
                 running = self.running
         print("Quitting MCS")
@@ -121,7 +124,7 @@ class MultiCamShift(threading.Thread):
 
 
     def checkXCoords(self, xCoords):
-        """Checks to see if the x distances are somewhat consitant (Should be close to evenly spaced)"""
+        """Checks to see if the x distances are somewhat consistent (Should be close to evenly spaced)"""
         xCoords = sorted(xCoords)
         dXs = xCoords[1] - xCoords[0], xCoords[2] - xCoords[1]
         if max(dXs) / (min(dXs) + 1) < self.horzPatternXRatio:

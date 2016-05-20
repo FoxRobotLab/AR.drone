@@ -20,6 +20,8 @@ class MultiCamShift(threading.Thread):
         self.drone = drone
         self.running = True
         self.parent = parentProgram
+        self.currFrame = None
+        self.patternInfo = None
         
         self.fHeight, self.fWidth, self.fDepth = self.drone.image_shape
 
@@ -46,6 +48,7 @@ class MultiCamShift(threading.Thread):
             image = self.drone.image.copy()
             red, green, blue = cv2.split(image)
             image = cv2.merge((blue, green, red))
+            self.currFrame = image
             key = chr(cv2.waitKey(33) & 255)
             if key == 't':
                 time = datetime.now().strftime('%Y-%m-%d-%H%M%S')
@@ -57,7 +60,7 @@ class MultiCamShift(threading.Thread):
             elif key == 'q' or key == ' ':
                 self.parent.quit()
 
-            frame = self.update(image)
+            frame = self.update()
             cv2.imshow("Drone Camera", frame)
 
             with self.lock:
@@ -66,22 +69,29 @@ class MultiCamShift(threading.Thread):
         cv2.destroyWindow("Drone Camera")
         cv2.waitKey(10)
         
-
     def stop(self):
         with self.lock:
             self.running = False
 
-    def update(self, image):
+    def displayPattern(self):
+        (x, y), relativeArea, angle, upperLeft, lowerRight = self.patternInfo
+        cv2.rectangle(self.currFrame, upperLeft, lowerRight, (0, 0, 225), 2)
+        #cv2.imshow("Drone Camera", self.currFrame)
+
+    def update(self):
         """Updates the trackers with the given image."""
-        hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        hsv_image = cv2.cvtColor(self.currFrame, cv2.COLOR_BGR2HSV)
         mask = cv2.inRange(hsv_image, np.array((0., 60., 45.)), np.array((255., 255., 255.)))
         objects = {}        
         for colorName in self.scanners:
             scanner = self.scanners[colorName]
-            image = scanner.scan(image, hsv_image, mask)
+            image = scanner.scan(self.currFrame, hsv_image, mask)
             objects[colorName] = scanner.getTrackingInfo()        
+        if self.patternInfo is not None:
+            self.displayPattern()    
         with self.lock:
-            self.locationAndArea = objects            
+            self.locationAndArea = objects 
+            self.currFrame = image           
         return image
 
 
@@ -98,19 +108,64 @@ class MultiCamShift(threading.Thread):
             outerData = self.locationAndArea[outerColor][:]
             centerData = self.locationAndArea[centerColor][:]
         if len(outerData) < 2 or len(centerData) == 0:
+            self.patternInfo = None
             return None
-        top1CenterByScore = sorted(centerData, key=itemgetter(1), reverse = True)[0]
-        top2OuterByScore = sorted(outerData, key=itemgetter(1), reverse = True)[0:2]
-        left, right = sorted(top2OuterByScore)
+        
+        """Checks to see if the edges of two objects have similar x-coords. Pass it i = 1 to check the 
+        left side of the center object (against right side of outer) or i = -1 to check the right side."""
+        def checkIfXclose(i, center, outer):
+            (ox, oy, ow, oh), oScore = outer
+            (cx, cy, cw, ch), cScore = center
+
+            diff = abs((ox + i*ow) - (cx - i*cw))
+            #print("X diff is", diff )
+
+            if diff < 150:
+                return True
+            return False
+
+        def checkIfYclose(center, left, right):
+            return abs(center[0][1] - left[0][1]) < 150 and abs(center[0][1] - right[0][1]) < 150
+
+        """remember that items in centerData and outerData are of form ((x, y, w, h), score), where
+        (x, y) is the center of the item, w and h are the width and height respectively, and score
+        is supposed to be theback projection of the item against the sample it's being compared to, 
+        but is actually 0.0 for some unknown reason."""
+        def findTriad(centerData, outerData):
+            for center in centerData:
+                leftObjects = []
+                rightObjects = []
+                #finds which blocks are directly to the left and right of the center block
+                for outer in outerData:
+                    if checkIfXclose(1, center, outer):
+                        leftObjects.append(outer)
+                    elif checkIfXclose(-1, center, outer):
+                        rightObjects.append(outer)
+                #if there are blocks to the right and left, see if any are also close in y coords
+                if leftObjects and rightObjects:
+                    for left in leftObjects:
+                        for right in rightObjects:
+                            if checkIfYclose(center, left, right):
+                                return center, left, right
+
+        triad = findTriad(centerData, outerData)
+        if triad is None:
+            return None
+        else:
+            center, left, right = triad
+
+
         (lx, ly, lw, lh), lScore = left
-        (cx, cy, cw, ch), cScore = top1CenterByScore
+        (cx, cy, cw, ch), cScore = center
         (rx, ry, rw, rh), rScore = right
         if not (lx <= cx and cx <= rx):
+            self.patternInfo = None
             return None
         #Ensures neither the left or the right Pattern is too close to the edge of the screen
         if not (self.horzMarkerBorder <= lx and rx <= self.fWidth - self.horzMarkerBorder) or \
             not (self.vertMarkerBorder <= ly and ly <= self.fHeight - self.vertMarkerBorder) or \
             not (self.vertMarkerBorder <= ry and ry <= self.fHeight - self.vertMarkerBorder):
+            self.patternInfo = None
             return None
         lArea = float(lw * lh)
         rArea = float(rw * rh)
@@ -120,27 +175,12 @@ class MultiCamShift(threading.Thread):
             angle = -90.0 * (1 - rArea / lArea)
         relativeArea = (lArea + rArea) / (self.fWidth * self.fHeight)
         
-        return (cx, cy), relativeArea, angle
-
-
-    def checkXCoords(self, xCoords):
-        """Checks to see if the x distances are somewhat consistent (Should be close to evenly spaced)"""
-        xCoords = sorted(xCoords)
-        dXs = xCoords[1] - xCoords[0], xCoords[2] - xCoords[1]
-        if max(dXs) / (min(dXs) + 1) < self.horzPatternXRatio:
-            return True
-        return False
-
-
-    def checkYCoords(self, yCoords):
-        """Checks to see if the y coords are close together"""
-        yCoords = sorted(yCoords)
-        if yCoords[2] - yCoords[0] <= self.horzPatternYSpacing:
-            return True
-        return False
+        self.patternInfo = (cx, cy), relativeArea, angle, (lx - lw/2, ly - lh/2), (rx + rw/2, ry + rh/2)
+        return self.patternInfo
+        #this code should be able to be cleaned up so you just return self.patternInfo
 
     def getFrameDims(self):
-            """Returns the the dimmensions and depth of the camera frame"""
+            """Returns the the dimensions and depth of the camera frame"""
             return self.fWidth, self.fHeight
 
 

@@ -6,7 +6,6 @@ import threading
 
 class PatternFollow:  ## removed the thread part of this
     def __init__(self):
-        #threading.Thread.__init__(self)
         self.drone = libardrone.ARDrone(True)
         self.lock = threading.Lock()
         self.runFlag = True
@@ -49,7 +48,7 @@ class PatternFollow:  ## removed the thread part of this
         # (x,y) is center point of center color
         # relativeArea is how big area of two outer colors together is compared to the whole drone image
         # angle is positive if area of left outer color is smaller than right outer color
-        (x, y), relativeArea, angle = patternInfo
+        (x, y), relativeArea, angle, _1, _2 = patternInfo
 
         # Scores made to make hierarchy of "issues" with target in drone's view
         xDiff = abs(x - self.cx)

@@ -11,7 +11,7 @@ class PatternFollow:  ## removed the thread part of this
         self.runFlag = True
         self.mcs = MultiCamShift(self.drone, self, trackColors = ["pink", "blue"])
         self.mcs.start()
-        self.width, self.height, self.depth = self.drone.image_shape #self.mcs.getFrameDims()
+        self.height, self.width, self.depth = self.drone.image_shape #self.mcs.getFrameDims()
         self.cx, self.cy = self.width / 2, self.height / 2
         self.targetRelativeArea = 0.035
 
@@ -52,13 +52,11 @@ class PatternFollow:  ## removed the thread part of this
 
         # Scores made to make hierarchy of "issues" with target in drone's view.
         # Most problematic (highest score) is the issue the drone tries to solve by moving
-        xDiff = abs(x - self.cx)
-        xScore = xDiff / (self.width / 2.0) * (7 / 6.0) # because the edges of the frame are cut off in MCS
+        xScore = abs(x - self.cx) / float(self.cx)
 
-        yDiff = abs(y - self.cy)
-        yScore = yDiff / (self.height / 2.0) * (5 / 4.0)
+        yScore = abs(y - self.cy) / float(self.cy)
 
-        angleScore = abs(angle / 90) * 1.5
+        angleScore = abs(angle / 90)
 
         areaScore = abs(max((1 - relativeArea / self.targetRelativeArea), -1))
 
@@ -81,7 +79,7 @@ class PatternFollow:  ## removed the thread part of this
 
         # If none of the scores are big enough to return any issues with the target in the drone's view to avoid
         # drone constantly trying to fix minute issues
-        if bestScore < 0.4:
+        if bestScore < 0.3:
             return
 
         # If center color is left/right of drone's view
@@ -92,21 +90,21 @@ class PatternFollow:  ## removed the thread part of this
             else:
                 self.drone.move_right()
                 print("move_right")
-            time.sleep(0.09)
+            time.sleep(0.10)
 
         # If one outer color has greater area visible to drone than other (meaning color strip is angled)
         elif bestName == "angleScore":
             if angle > 0.0:
-                self.drone.move_left()
-                sleep(0.09)
                 self.drone.turn_right()
+                time.sleep(0.40)
+                self.drone.move_left()
                 print("adjust angle right")
             else:
-                self.drone.move_right()
-                sleep(0.09)
                 self.drone.turn_left()
+                time.sleep(0.40)
+                self.drone.move_right()
                 print("adjust angle left")
-            time.sleep(0.43)
+            time.sleep(0.10)
 
         # If target area does not take up enough area of drone's view (too far away/close-up)
         elif bestName == "areaScore":
@@ -115,7 +113,7 @@ class PatternFollow:  ## removed the thread part of this
                 print("move_forward")
             else:
                 self.drone.move_backward()
-            print("move_backward")
+                print("move_backward")
             time.sleep(0.45)
 
         # If center color is too high/low in drone's view

@@ -91,7 +91,9 @@ class MultiCamShift(threading.Thread):
             self.displayPattern()    
         with self.lock:
             self.locationAndArea = objects 
-            self.currFrame = image           
+            self.currFrame = image
+        # cv2.rectangle(self.currFrame, (160, 90), (480, 270), (0,225), 1)          #approximated target box for testing
+
         return image
 
 
@@ -110,7 +112,7 @@ class MultiCamShift(threading.Thread):
         if len(outerData) < 2 or len(centerData) == 0:
             self.patternInfo = None
             return None
-        
+
         """Checks to see if the edges of two objects have similar x-coords. Pass it i = 1 to check the 
         left side of the center object (against right side of outer) or i = -1 to check the right side."""
         def checkIfXclose(i, center, outer):

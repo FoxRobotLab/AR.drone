@@ -20,7 +20,7 @@ class Tracker(object):
     
     def update(self, bproj):
         """Updates the camshift trackwindow for this particular object"""
-        self.bproj = bproj
+        self.bproj = bproj.copy()
         split = False
         
         #Checks the accuracy of the tracker every self.checkEvery times
@@ -79,7 +79,8 @@ class Tracker(object):
     def getMatchLevel(self):
         """Returns a normalized score for the accuracy of the track window"""
         """DO NOT TRUST THIS FUNCTION, IT IS A LYING LIAR THAT ALWAYS RETURNS 0"""
-        return self.backProjAverage(self.track_window) / 255.0
+        match = self.backProjAverage(self.track_window) / 255.0
+        return match
     
     def getTrackWindow(self):
         return self.track_window

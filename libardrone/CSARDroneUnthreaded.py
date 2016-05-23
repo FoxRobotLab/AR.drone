@@ -52,7 +52,7 @@ class PatternFollow:  ## removed the thread part of this
         (x, y), relativeArea, angle, _1, _2 = patternInfo
 
         # Scores made to make hierarchy of "issues" with target in drone's view.
-        # Most problematic (highest score) is the issue the drone tries to solve by moving
+        # Most critical (highest score) is the issue the drone tries to solve by moving
         xScore = abs(x - self.cx) / float(self.cx)
 
         yScore = abs(y - self.cy) / float(self.cy)

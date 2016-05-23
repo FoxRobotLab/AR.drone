@@ -89,7 +89,9 @@ class MultiCamShift(threading.Thread):
             self.displayPattern()    
         with self.lock:
             self.locationAndArea = objects
-            self.currFrame = image            
+            self.currFrame = image
+
+        # cv2.rectangle(self.currFrame, (160, 90), (480, 270), (0,225), 1)          #approximated target box for testing
         return image
 
 

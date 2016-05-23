@@ -46,6 +46,7 @@ def drawMatches(img1, kp1, img2, kp2, matches):
     rows2 = img2.shape[0]
     cols2 = img2.shape[1]
 
+
     out = np.zeros((max([rows1,rows2]),cols1+cols2,3), dtype='uint8')
 
     # Place the first image to the left
@@ -94,6 +95,7 @@ def tryToMatchFeatures(sift, img1, pointInfo):
 
     # Initiate SIFT detector
     sift = cv2.SIFT()
+    # sift = cv2.xfeatures2d.SIFT_create()      #If using OpenCV 3
     
 #    if img1 is None or img2 is None:
 #        print("it thinks the images are none")
@@ -161,6 +163,8 @@ itemsSought = ['hatch', 'exit']
 properties = [] #2D array used to store info on each item: item i is properties[i]
 
 sift = cv2.SIFT()
+# sift = cv2.xfeatures2d.SIFT_create()      #If using OpenCV 3
+
 
 #properties[i][0] holds the reference image for the item
 for i in range (0, len(itemsSought)):

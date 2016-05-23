@@ -20,12 +20,14 @@ class Tracker(object):
     
     def update(self, bproj):
         """Updates the camshift trackwindow for this particular object"""
-        self.bproj = bproj
+        self.bproj = bproj.copy()
         split = False
         
         #Checks the accuracy of the tracker every self.checkEvery times
         if self.sinceLastCheck >= self.checkEvery:    
             self.accuracyCheck()
+            # if self.found:
+                # cv2.imshow("FOUND", self.bproj)
             split = self.needsSplitting() and self.found
             self.sinceLastCheck = 0
         

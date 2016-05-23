@@ -20,12 +20,14 @@ class Tracker(object):
     
     def update(self, bproj):
         """Updates the camshift trackwindow for this particular object"""
-        self.bproj = bproj
+        self.bproj = bproj.copy()  ## changed this
         split = False
         
         #Checks the accuracy of the tracker every self.checkEvery times
         if self.sinceLastCheck >= self.checkEvery:    
             self.accuracyCheck()
+            #if self.found:
+                #cv2.imshow("FOUND", self.bproj)
             split = self.needsSplitting() and self.found
             self.sinceLastCheck = 0
         
@@ -41,7 +43,8 @@ class Tracker(object):
         c,r,w,h = self.track_window
         
         #Erases the area around the track_window inside the backprojection so the next tracker doesn't see it
-        bproj[int(math.ceil(0.95 * (r))):int(math.ceil(1.05 * (r + h))), int(math.ceil(0.95 * (c))):int(math.ceil(1.05 * (c + w)))] = 0
+        bproj[math.ceil(0.95*(r)):math.ceil(1.05*(r+h)), math.ceil(0.95*(c)):math.ceil(1.05*(c+w))] = 0
+        
         self.sinceLastCheck += 1
         return self.track_rect, bproj, split
     
@@ -52,8 +55,10 @@ class Tracker(object):
         npArray = self.bproj[r:r+h, c:c+w]
         npSum = np.sum(npArray)
         area = (w+1)*(h+1)
-        
-        return float(npSum) / float(area)
+        #cv2.imshow("BprojAvg", self.bproj[r:r+h, c:c+w])
+        #print "BackProjAverage", npSum, area, npSum / area
+        #cv2.waitKey(0)
+        return npSum / area
     
     
     def accuracyCheck(self):
@@ -64,6 +69,7 @@ class Tracker(object):
             self.found = False
         else:
             self.found = True
+
     
     
     def needsSplitting(self):
@@ -78,7 +84,6 @@ class Tracker(object):
 
     def getMatchLevel(self):
         """Returns a normalized score for the accuracy of the track window"""
-        """DO NOT TRUST THIS FUNCTION, IT IS A LYING LIAR THAT ALWAYS RETURNS 0"""
         return self.backProjAverage(self.track_window) / 255.0
     
     def getTrackWindow(self):

@@ -9,7 +9,7 @@ from datetime import datetime
 from TargetScanner import *
 
 class MultiCamShift(threading.Thread):
-    
+
     def __init__(self, drone, parentProgram, trackColors = ["red", "green", "blue", "violet", "indigo"]):
         """Creates the cam shift thread and sets up scanners for all objects listed in 'self.toScanFor'"""
         threading.Thread.__init__(self)
@@ -22,7 +22,7 @@ class MultiCamShift(threading.Thread):
         self.parent = parentProgram
         self.currFrame = None
         self.patternInfo = None
-        
+
         self.fHeight, self.fWidth, self.fDepth = self.drone.image_shape
 
         for colorName in self.toScanFor:
@@ -33,7 +33,7 @@ class MultiCamShift(threading.Thread):
 
         # determines how uniform the distances between the colors in a pattern must be
         self.horzPatternXRatio = 2
-        
+
         #for the AR.Drone program: ignores colors that are at within this distance to the edge of the screen
         self.horzMarkerBorder = self.fWidth / 14
         self.vertMarkerBorder = self.fHeight / 10
@@ -68,7 +68,7 @@ class MultiCamShift(threading.Thread):
         print("Quitting MCS")
         cv2.destroyWindow("Drone Camera")
         cv2.waitKey(10)
-        
+
     def stop(self):
         with self.lock:
             self.running = False
@@ -80,17 +80,18 @@ class MultiCamShift(threading.Thread):
 
     def update(self):
         """Updates the trackers with the given image."""
+        # blurImage = cv2.GaussianBlur(self.currFrame, (5, 5), 0)
         hsv_image = cv2.cvtColor(self.currFrame, cv2.COLOR_BGR2HSV)
         mask = cv2.inRange(hsv_image, np.array((0., 60., 45.)), np.array((255., 255., 255.)))
-        objects = {}        
+        objects = {}
         for colorName in self.scanners:
             scanner = self.scanners[colorName]
             image = scanner.scan(self.currFrame, hsv_image, mask)
-            objects[colorName] = scanner.getTrackingInfo()        
+            objects[colorName] = scanner.getTrackingInfo()
         if self.patternInfo is not None:
-            self.displayPattern()    
+            self.displayPattern()
         with self.lock:
-            self.locationAndArea = objects 
+            self.locationAndArea = objects
             self.currFrame = image
         # cv2.rectangle(self.currFrame, (160, 90), (480, 270), (0,225), 1)          #approximated target box for testing
 
@@ -165,8 +166,8 @@ class MultiCamShift(threading.Thread):
             return None
         #Ensures neither the left or the right Pattern is too close to the edge of the screen
         if not (self.horzMarkerBorder <= lx and rx <= self.fWidth - self.horzMarkerBorder) or \
-            not (self.vertMarkerBorder <= ly and ly <= self.fHeight - self.vertMarkerBorder) or \
-            not (self.vertMarkerBorder <= ry and ry <= self.fHeight - self.vertMarkerBorder):
+                not (self.vertMarkerBorder <= ly and ly <= self.fHeight - self.vertMarkerBorder) or \
+                not (self.vertMarkerBorder <= ry and ry <= self.fHeight - self.vertMarkerBorder):
             self.patternInfo = None
             return None
         lArea = float(lw * lh)
@@ -176,19 +177,19 @@ class MultiCamShift(threading.Thread):
         else:
             angle = -90.0 * (1 - rArea / lArea)
         relativeArea = (lArea + rArea) / (self.fWidth * self.fHeight)
-        
+
         self.patternInfo = (cx, cy), relativeArea, angle, (lx - lw/2, ly - lh/2), (rx + rw/2, ry + rh/2)
         return self.patternInfo
         #this code should be able to be cleaned up so you just return self.patternInfo
 
     def getFrameDims(self):
-            """Returns the the dimensions and depth of the camera frame"""
-            return self.fWidth, self.fHeight
+        """Returns the the dimensions and depth of the camera frame"""
+        return self.fWidth, self.fHeight
 
 
     def getFrameCenter(self):
-            """Returns the center coordinates of the camera frame"""
-            return self.fWidth/2, self.fHeight/2
+        """Returns the center coordinates of the camera frame"""
+        return self.fWidth/2, self.fHeight/2
 
 
 

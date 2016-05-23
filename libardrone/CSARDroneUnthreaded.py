@@ -24,15 +24,16 @@ class PatternFollow:  ## removed the thread part of this
         runFlag = True
         while runFlag:
 
-            time.sleep(1)
+            # time.sleep(1)
             # img = self.drone.image
             # cv2.imshow("FOOBAR", img)
 
-            x = cv2.waitKey(30)
-            if x != -1:
-                ch = chr(x & 255)
-                if ch == 'q':
-                    break
+            x = cv2.waitKey(100)
+            # if x != -1:
+            #     ch = chr(x & 255)
+            #     if ch == 'q':
+            #         print("Hello from the other side")
+            #         break
             matchState = self.mcs.getHorzMarkerInfo(outerColor = "pink", centerColor = "blue")
             if matchState != None:
                 print("CSARDrone says: matchstate =", matchState)

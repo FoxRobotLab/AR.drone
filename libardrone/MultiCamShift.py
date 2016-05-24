@@ -5,6 +5,7 @@ import math
 import itertools
 from operator import itemgetter
 from datetime import datetime
+import time
 
 from TargetScanner import *
 
@@ -22,6 +23,8 @@ class MultiCamShift(threading.Thread):
         self.parent = parentProgram
         self.currFrame = None
         self.patternInfo = None
+        self.i = 0
+        self.land = 0
 
         self.fHeight, self.fWidth, self.fDepth = self.drone.image_shape
 
@@ -43,22 +46,56 @@ class MultiCamShift(threading.Thread):
         """Will run the tracking program on the video from vid_src."""
         running = True
         cv2.namedWindow("Drone Camera")
-        cv2.startWindowThread()
         while running:
             image = self.drone.image.copy()
             red, green, blue = cv2.split(image)
             image = cv2.merge((blue, green, red))
             self.currFrame = image
-            key = chr(cv2.waitKey(33) & 255)
-            if key == 't':
-                time = datetime.now().strftime('%Y-%m-%d-%H%M%S')
-                filename = "cap-" + time + ".jpg"
-                path = ".." + os.path.join(os.sep, "res", "captures", filename)
-                print(path)
-                cv2.imwrite(path, image)
-                print("Image Saved")
-            elif key == 'q' or key == ' ':
-                self.parent.quit()
+            x = cv2.waitKey(33)
+            if x != -1:
+                print("User override")
+                key = chr(x & 255)
+                if key == 't':
+                    time = datetime.now().strftime('%Y-%m-%d-%H%M%S')
+                    filename = "cap-" + time + ".jpg"
+                    path = ".." + os.path.join(os.sep, "res", "captures", filename)
+                    print(path)
+                    cv2.imwrite(path, image)
+                    print("Image Saved")
+                elif key in {'i', 'I'}:
+                    self.drone.move_up()
+                    time.sleep(0.3)
+                    self.drone.hover()
+                elif key in {'k', 'K'}:
+                    self.drone.move_down()
+                    time.sleep(0.3)
+                    self.drone.hover()
+                elif key in {'j', 'J'}:
+                    self.drone.turn_left()
+                    time.sleep(0.3)
+                    self.drone.hover()
+                elif key in {'l', 'L'}:
+                    self.drone.turn_right()
+                    time.sleep(0.3)
+                    self.drone.hover()
+                elif key in {'w', 'W'}:
+                    self.drone.move_forward()
+                    time.sleep(0.3)
+                    self.drone.hover()
+                elif key in {'s', 'S'}:
+                    self.drone.move_backward()
+                    time.sleep(0.3)
+                    self.drone.hover()
+                elif key in {'a', 'A'}:
+                    self.drone.move_left()
+                    time.sleep(0.3)
+                    self.drone.hover()
+                elif key in {'d', 'D'}:
+                    self.drone.move_right()
+                    time.sleep(0.3)
+                    self.drone.hover()
+                elif key == 'q' or key == ' ':
+                    self.parent.quit()
 
             frame = self.update()
             cv2.imshow("Drone Camera", frame)
@@ -93,7 +130,7 @@ class MultiCamShift(threading.Thread):
         with self.lock:
             self.locationAndArea = objects
             self.currFrame = image
-        # cv2.rectangle(self.currFrame, (160, 90), (480, 270), (0,225), 1)          #approximated target box for testing
+        cv2.rectangle(self.currFrame, (160, 90), (480, 270), (0,225), 1)          #approximated target box for testing
         return image
 
 
@@ -106,6 +143,18 @@ class MultiCamShift(threading.Thread):
 
     def getHorzMarkerInfo(self, outerColor, centerColor):
         """For the AR.Drone program: returns info about the marker"""
+        self.i = self.i + 1
+        if self.i > 75:
+            print("No pattern found")
+            self.drone.turn_left()
+            time.sleep(0.05)
+            self.drone.hover()
+            navData = self.drone.get_navdata()
+            print("Battery level is", navData[0]['battery'])
+            self.i = 0
+        if self.land > 1000:
+            self.drone.land()
+            self.parent.quit()
         with self.lock:
             outerData = self.locationAndArea[outerColor][:]
             centerData = self.locationAndArea[centerColor][:]

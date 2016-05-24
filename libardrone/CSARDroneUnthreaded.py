@@ -17,28 +17,18 @@ class PatternFollow:  ## removed the thread part of this
 
 
     def run(self):
-        #self.drone.speed = 1
-        #time.sleep(1)
-        #self.drone.takeoff()
-        #time.sleep(2.5)
+        self.drone.speed = 1
+        time.sleep(1)
+        self.drone.takeoff()
+        time.sleep(2.5)
         runFlag = True
         while runFlag:
-
-            # time.sleep(1)
-            # img = self.drone.image
-            # cv2.imshow("FOOBAR", img)
-
-            x = cv2.waitKey(100)
-            # if x != -1:
-            #     ch = chr(x & 255)
-            #     if ch == 'q':
-            #         print("Hello from the other side")
-            #         break
+            cv2.waitKey(100)
             matchState = self.mcs.getHorzMarkerInfo(outerColor = "pink", centerColor = "blue")
             if matchState != None:
                 print("CSARDrone says: matchstate =", matchState)
                 self.patternReact(matchState)
-            #     self.drone.hover()
+                self.drone.hover()
             with self.lock:
                 runFlag = self.runFlag
         self.quit()
@@ -97,15 +87,15 @@ class PatternFollow:  ## removed the thread part of this
         elif bestName == "angleScore":
             if angle > 0.0:
                 self.drone.turn_right()
-                time.sleep(0.40)
+                time.sleep(0.10)
                 self.drone.move_left()
                 print("adjust angle right")
             else:
                 self.drone.turn_left()
-                time.sleep(0.40)
+                time.sleep(0.10)
                 self.drone.move_right()
                 print("adjust angle left")
-            time.sleep(0.10)
+            time.sleep(0.30)
 
         # If target area does not take up enough area of drone's view (too far away/close-up)
         elif bestName == "areaScore":

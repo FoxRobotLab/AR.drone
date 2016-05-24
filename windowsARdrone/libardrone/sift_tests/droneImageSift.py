@@ -136,7 +136,7 @@ def findImage(img, properties, itemsSought, j):
         #print('Run ' + str(j) + ': The '+ str(itemsSought[max_index]) + ' sign was detected, with ' + str(max_value) + ' points')
         box = drawMatches(img, properties[max_index][2][1], properties[max_index][0], properties[max_index][2][2], properties[max_index][2][0], colorImage)
     else:
-        print('No sign was detected')
+        #print('No sign was detected')
         return None
         
     #cleanup

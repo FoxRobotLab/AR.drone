@@ -11,7 +11,7 @@ class PatternFollow:  ## removed the thread part of this
         self.runFlag = True
         self.mcs = MultiCamShift(self.drone, self, trackColors = ["pink", "blue"])
         self.mcs.start()
-        self.width, self.height, self.depth = self.drone.image_shape #self.mcs.getFrameDims()
+        self.height, self.width, self.depth = self.drone.image_shape #self.mcs.getFrameDims()
         self.cx, self.cy = self.width / 2, self.height / 2
         self.targetRelativeArea = 0.035
 
@@ -23,14 +23,7 @@ class PatternFollow:  ## removed the thread part of this
         time.sleep(2.5)
         runFlag = True
         while runFlag:
-            img = self.drone.image
-            cv2.imshow("FOOBAR", img)
-
-            x = cv2.waitKey(30)
-            if x != -1:
-                ch = chr(x & 255)
-                if ch == 'q':
-                    break
+            x = cv2.waitKey(100)
             matchState = self.mcs.getHorzMarkerInfo(outerColor = "pink", centerColor = "blue")
             if matchState != None:
                 print "CSARDrone says: matchstate =", matchState
@@ -94,15 +87,15 @@ class PatternFollow:  ## removed the thread part of this
         elif bestName == "angleScore":
             if angle > 0.0:
                 self.drone.turn_right()
-                time.sleep(0.40)
+                time.sleep(0.10)
                 self.drone.move_left()
                 print("adjust angle right")
             else:
                 self.drone.turn_left()
-                time.sleep(0.40)
+                time.sleep(0.10)
                 self.drone.move_right()
                 print("adjust angle left")
-            time.sleep(0.10)
+            time.sleep(0.30)
 
         # If target area does not take up enough area of drone's view (too far away/close-up)
         elif bestName == "areaScore":

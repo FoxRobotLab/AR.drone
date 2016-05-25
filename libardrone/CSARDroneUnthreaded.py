@@ -29,13 +29,15 @@ class PatternFollow:  ## removed the thread part of this
                 print("CSARDrone says: matchstate =", matchState)
                 self.patternReact(matchState)
                 self.drone.hover()
+                self.checkAltitude()
             with self.lock:
                 runFlag = self.runFlag
         self.quit()
 
 
     def patternReact(self, patternInfo):
-        """"""
+        """Controls drone's movement based on information passed back from MultiCamShift. Reacts to where center color
+        is located in the drone's view.  """
         # (x,y) is center point of center color
         # relativeArea is how big area of two outer colors together is compared to the whole drone image
         # angle is positive if area of left outer color is smaller than right outer color
@@ -68,8 +70,8 @@ class PatternFollow:  ## removed the thread part of this
             if num > bestScore:
                 bestName, bestScore = score
 
-        # If none of the scores are big enough to return any issues with the target in the drone's view to avoid
-        # drone constantly trying to fix minute issues
+        """ If none of the scores are big enough to return any issues with the target in the drones view to avoid
+         drone constantly trying to fix minute issues"""
         if bestScore < 0.3:
             return
 
@@ -118,41 +120,22 @@ class PatternFollow:  ## removed the thread part of this
                 print("move_up")
             time.sleep(0.05)
 
-        # if bestName == "xScore":
-        #     if x < self.cx:
-        #         self.drone.move_left()
-        #         print("move_left")
-        #     else:
-        #         self.drone.move_right()
-        #         print("move_right")
-        #     time.sleep(0.09)
-        # elif bestName == "angleScore":
-        #     if angle > 0.0:
-        #         self.drone.move_left()
-        #         self.drone.turn_right()
-        #         print("adjust angle right")
-        #     else:
-        #         self.drone.move_right()
-        #         self.drone.turn_left()
-        #         print("adjust angle left")
-        #     time.sleep(0.20)
-        # elif bestName == "areaScore":
-        #     if relativeArea < self.targetRelativeArea:
-        #         self.drone.move_forward()
-        #         print("move_forward")
-        #     else:
-        #         self.drone.move_backward()
-        #     print("move_backward")
-        #     time.sleep(0.45)
-        # elif bestName == "yScore":
-        #     # height indexes from the top down
-        #     if y > self.cy:
-        #         self.drone.move_down()
-        #         print("move_down")
-        #     else:
-        #         self.drone.move_up()
-        #         print("move_up")
-        #     time.sleep(0.2)
+
+    def checkAltitude(self):
+        """Keeps drone from flying too high or too low."""
+        navData = self.drone.get_navdata()
+        alt = navData[0]["altitude"]
+        # print("Altitude is ", alt)
+        if alt > 1700:
+            self.drone.move_down()
+            time.sleep(.30)
+            self.drone.hover()
+            print("Drone is too high")
+        if alt < 300:
+            self.drone.move_up()
+            time.sleep(.30)
+            self.drone.hover()
+            print("Drone is too low")
 
 
     def quit(self):

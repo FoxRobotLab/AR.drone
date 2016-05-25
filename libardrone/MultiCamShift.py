@@ -145,6 +145,7 @@ class MultiCamShift(threading.Thread):
         """For the AR.Drone program: returns info about the marker"""
         self.i = self.i + 1
         self.land = self.land + 1
+        """Turns the drone if no pattern is found. Could possibly put this in a separate function elsewhere."""
         if self.i > 75:
             print("No pattern found")
             self.drone.turn_left()

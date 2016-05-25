@@ -10,7 +10,7 @@ class CheckDrone:
 
         self.drone = libardrone.ARDrone(True)
         print("Drone initialized")
-        print("\n q for quit \n spacebar for takeoff/land \n b for battery level check \n")
+        print("\n q for quit \n spacebar for takeoff/land \n b for battery level check \n AWSD directional control \n i for altitude info")
         self.inAir = False
         self.quitting = False
 
@@ -20,6 +20,7 @@ class CheckDrone:
         while True:
             self.showCamera()
             self.userKeyResponse()
+            self.checkAltitude()
             if self.quitting:
                 cv2.destroyAllWindows()
                 break
@@ -49,7 +50,56 @@ class CheckDrone:
             navData = self.drone.get_navdata()
             print("Battery level is", navData[0]['battery'])
             print(navData)
-        elif key =
+        elif key in {'x', 'x'}:
+            if self.inAir:
+                self.drone.move_up()
+                time.sleep(0.3)
+                self.drone.hover()
+        elif key in {'c', 'C'}:
+            if self.inAir:
+                self.drone.move_down()
+                time.sleep(0.3)
+                self.drone.hover()
+        elif key in {'w', 'W'}:
+            if self.inAir:
+                self.drone.move_forward()
+                time.sleep(0.3)
+                self.drone.hover()
+        elif key in {'s', 'S'}:
+            if self.inAir:
+                self.drone.move_backward()
+                time.sleep(0.3)
+                self.drone.hover()
+        elif key in {'a', 'A'}:
+            if self.inAir:
+                self.drone.move_left()
+                time.sleep(0.3)
+                self.drone.hover()
+        elif key in {'d', 'D'}:
+            if self.inAir:
+                self.drone.move_right()
+                time.sleep(0.3)
+                self.drone.hover()
+        elif key in {'i', 'I'}:
+            navData = self.drone.get_navdata()
+            print("Altitude is ", navData[0]["altitude"])
+
+
+
+    def checkAltitude(self):
+        navData = self.drone.get_navdata()
+        alt = navData[0]["altitude"]
+        print("Altitude is ", alt)
+        if alt > 1700:
+            self.drone.move_down()
+            time.sleep(.45)
+            self.drone.hover()
+            print("Drone is too high")
+        if alt < 300:
+            self.drone.move_up()
+            time.sleep(.45)
+            self.drone.hover()
+            print("Drone is too low")
 
 
     def showCamera(self):

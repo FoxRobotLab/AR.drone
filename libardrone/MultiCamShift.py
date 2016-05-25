@@ -144,6 +144,7 @@ class MultiCamShift(threading.Thread):
     def getHorzMarkerInfo(self, outerColor, centerColor):
         """For the AR.Drone program: returns info about the marker"""
         self.i = self.i + 1
+        self.land = self.land + 1
         if self.i > 75:
             print("No pattern found")
             self.drone.turn_left()
@@ -152,7 +153,7 @@ class MultiCamShift(threading.Thread):
             navData = self.drone.get_navdata()
             print("Battery level is", navData[0]['battery'])
             self.i = 0
-        if self.land > 1000:
+        if self.land > 750:
             self.drone.land()
             self.parent.quit()
         with self.lock:

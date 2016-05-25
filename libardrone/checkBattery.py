@@ -30,13 +30,13 @@ class CheckDrone:
         key = cv2.waitKey(20)
         if key == -1:
             return
-        chrKey = chr(key % 255)
-        if chrKey in {'q', 'Q'}:
+        key = chr(key % 255)
+        if key in {'q', 'Q'}:
             print("Quitting")
             self.drone.land()
             time.sleep(2)
             self.quitting = True
-        elif chrKey == ' ':
+        elif key == ' ':
             if self.inAir:
                 print("Landing")
                 self.drone.land()
@@ -45,9 +45,11 @@ class CheckDrone:
                 print("Taking off")
                 self.drone.takeoff()
                 self.inAir = True
-        elif chrKey in {'b', 'B'}:
+        elif key in {'b', 'B'}:
             navData = self.drone.get_navdata()
             print("Battery level is", navData[0]['battery'])
+            print(navData)
+        elif key =
 
 
     def showCamera(self):

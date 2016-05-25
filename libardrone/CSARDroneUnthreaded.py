@@ -105,7 +105,7 @@ class PatternFollow:  ## removed the thread part of this
             else:
                 self.drone.move_backward()
                 print("move_backward")
-            time.sleep(0.45)
+            time.sleep(0.10)
 
         # If center color is too high/low in drone's view
         elif bestName == "yScore":
@@ -116,7 +116,7 @@ class PatternFollow:  ## removed the thread part of this
             else:
                 self.drone.move_up()
                 print("move_up")
-            time.sleep(0.2)
+            time.sleep(0.05)
 
         # if bestName == "xScore":
         #     if x < self.cx:

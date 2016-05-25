@@ -6,7 +6,7 @@ Created on Mon May 09 14:02:30 2016
 """
 
 import numpy as np
-import math
+#import math
 import os
 from operator import itemgetter
 import sys
@@ -56,7 +56,6 @@ def drawMatches(img1, kp1, img2, kp2, matches, colorImage):
 
     maxArea = 0
     largestContour = 0
-    index = 0
 
     for i in range (0, len(contours)):
         contour = contours[i]
@@ -64,24 +63,9 @@ def drawMatches(img1, kp1, img2, kp2, matches, colorImage):
         if area > maxArea:
             maxArea = area
             largestContour = contour
-            index = i
-            #print("INDEX", index)
             
     rect = cv2.boundingRect(largestContour)
-    #rect = cv2.minAreaRect(largestContour)
-    #box = cv2.boxPoints(rect)
-    #box = np.int0(box)
-    #print(box)
-    #cv2.drawContours(closing,contours,index,(255,255,255),2)
 
-#    for i in range (0, 4):
-#        cv2.line(colorImage, tuple(box[i]), tuple(box[(i+1)%4]), (255, 0, 0))
-
-    #cv2.imshow('Feature found', colorImage)
-    #cv2.waitKey(0)
-    #cv2.destroyWindow('Feature found')
-    
-    #return (tuple(box[0]), tuple(box[1]), tuple(box[2]), tuple(box[3]))
     return rect
 
 def tryToMatchFeatures(sift, img1, pointInfo):
@@ -117,8 +101,6 @@ def findImage(img, properties, itemsSought, j):
     sift = cv2.xfeatures2d.SIFT_create()
     for i in range (0, len(itemsSought)):
         goodPoints, targetKeypts, refKeypts = tryToMatchFeatures(sift, img, properties[i][1])
-        #cv2.imshow("next", colorImage)
-        #cv2.waitKey(0)
         properties[i][2].append(goodPoints)
         properties[i][2].append(targetKeypts)
         properties[i][2].append(refKeypts)
@@ -168,9 +150,10 @@ def initRefs(itemsSought):
         
     return properties
     
+#run this if you wanna test the feature recognition using still images in the dronecaps file
 def scanImages():
-    
-    itemsSought = ['hatch', 'exit'] #'door' if you want but it's pretty inaccurate
+    #add 'door' if you want but it's more inaccurate than the others, you're likely to get false positives
+    itemsSought = ['hatch', 'exit']
     properties = initRefs(itemsSought)
     
     for j in range (1, 39): #hard-coded for number of images you're checking

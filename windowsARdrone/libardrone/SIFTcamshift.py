@@ -80,25 +80,27 @@ class SIFTcamshift(threading.Thread):
                 #print("rect is", rect)
                 cv2.rectangle(vis1,(x,y),(x+w,y+h),(0,255,0),2)
                 
-                #I cannot remember why you have the w-x, h-y but it is CRITICAL
-                #it's because in the demo it was two points, upper left and lower right
-                #and the w-x, h-y solved for the width and height. but here you very clearly ALREADY HAVE
-                #the width and height...so why doesn't this work?
                 self.track_window = (x, y, w, h)
                 print("track window", self.track_window)
     
-                hsv_roi = hsv[y:h, x:w]             # access the currently selected region and make a histogram of its hue 
-                mask_roi = mask[y:h, x:w]
+                hsv_roi = hsv[y:h+y, x:w+x]             # access the currently selected region and make a histogram of its hue 
+                mask_roi = mask[y:h+y, x:w+x]
+    
+                """trying to take only a subsection of the image, in case the whole
+                select by contour thing got some extra - just an experiment to see
+                if it improved camshift's accuracy - by appearances, no."""
+#                hsv_roi = hsv[y+(h/4):(3*h/2)+y, x+(w/4):(3*w/2)+x]             # access the currently selected region and make a histogram of its hue 
+#                mask_roi = mask[y+(h/4):(3*h/2)+y, x+(w/4):(3*w/2)+x]
+    
                 hist = cv2.calcHist( [hsv_roi], [0], mask_roi, [16], [0, 180] )
                 cv2.normalize(hist, hist, 0, 255, cv2.NORM_MINMAX)
                 self.hist = hist.reshape(-1)
                 #print(hist)
             
         else: #from camShiftDemo
-            print("Hey. C'mon.")
             prob = cv2.calcBackProject([hsv], [0], self.hist, [0, 180], 1)
             #prob &= mask
-            term_crit = ( cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 50, 1 )
+            term_crit = ( cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 50, 1)
             track_box, self.track_window = cv2.CamShift(prob, self.track_window, term_crit)
             try:
                 cv2.ellipse(vis1, track_box, (0, 0, 255), 2)

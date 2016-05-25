@@ -31,7 +31,7 @@ while True:
 
     vis1 = frame1.copy()
 
-    if track_window is None or track_window[0] < 1 or track_window[1] < 1 or track_window[2] < 1 or track_window[3] < 1:
+    if track_window is None:
         itemsSought = ['hatch', 'exit']
         properties = initRefs(itemsSought)
         rect = findImage(vis1, properties, itemsSought, 0)
@@ -40,11 +40,10 @@ while True:
             #print("rect is", rect)
             cv2.rectangle(vis1,(x,y),(x+w,y+h),(0,255,0),2)
             
-            #I cannot remember why you have the w-x, h-y but it is CRITICAL
-            track_window = (x, y, w-x, h-y)
+            track_window = (x, y, w, h)
 
-            hsv_roi = hsv[y:h, x:w]             # access the currently selected region and make a histogram of its hue 
-            mask_roi = mask[y:h, x:w]
+            hsv_roi = hsv[y:h+y, x:w+x]             # access the currently selected region and make a histogram of its hue 
+            mask_roi = mask[y:h+y, x:w+x]
             hist = cv2.calcHist( [hsv_roi], [0], mask_roi, [16], [0, 180] )
             cv2.normalize(hist, hist, 0, 255, cv2.NORM_MINMAX)
             hist = hist.reshape(-1)

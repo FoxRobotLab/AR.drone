@@ -10,7 +10,8 @@ class CheckDrone:
 
         self.drone = libardrone.ARDrone(True)
         print("Drone initialized")
-        print("\n q for quit \n spacebar for takeoff/land \n b for battery level check \n AWSD directional control \n i for altitude info")
+        print("\n q for quit \n spacebar for takeoff/land \n b for battery level check \n AWSD directional control \n "
+              "x and c for up and down \n i for altitude info")
         self.inAir = False
         self.quitting = False
 
@@ -87,6 +88,7 @@ class CheckDrone:
 
 
     def checkAltitude(self):
+        """Checks if drone is too high/low"""
         navData = self.drone.get_navdata()
         alt = navData[0]["altitude"]
         print("Altitude is ", alt)

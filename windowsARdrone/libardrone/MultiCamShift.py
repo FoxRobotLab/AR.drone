@@ -145,6 +145,8 @@ class MultiCamShift(threading.Thread):
     def getHorzMarkerInfo(self, outerColor, centerColor):
         """For the AR.Drone program: returns info about the marker"""
         self.i = self.i + 1
+        # self.land = self.land + 1
+        """Turns the drone if no pattern is found. Could possibly put this in a separate function elsewhere."""
         if self.i > 75:
             print("No pattern found")
             self.drone.turn_left()
@@ -165,7 +167,7 @@ class MultiCamShift(threading.Thread):
 
         #bestMatch = None
         #for i in (0, len(centerData)):
-        getcount = itemgetter(1)
+        # getcount = itemgetter(1)
         
         #print("center data scores", map(getcount, centerData))
         #print("outer data scores", map(getcount, outerData))

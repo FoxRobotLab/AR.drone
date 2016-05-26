@@ -19,7 +19,7 @@ class PatternFollow:  ## removed the thread part of this
     def run(self):
         self.drone.speed = 1
         time.sleep(1)
-        self.drone.takeoff()
+        #self.drone.takeoff()
         time.sleep(2.5)
         runFlag = True
         while runFlag:
@@ -32,7 +32,7 @@ class PatternFollow:  ## removed the thread part of this
             if track_window != None:
                 #print "CSARDrone says: track window =", track_window
                 self.patternReact(track_window)
-                self.drone.hover()
+                #self.drone.hover()
             with self.lock:
                 runFlag = self.runFlag
         self.quit()
@@ -55,7 +55,7 @@ class PatternFollow:  ## removed the thread part of this
         xScore = abs(x - self.cx) / float(self.cx)
         yScore = abs(y - self.cy) / float(self.cy)
         #we expect this one to be off in the range of .1, .2, so normalise as such
-        areaScore = abs(self.targetRelativeArea - relativeArea) / 0.2
+        areaScore = abs(self.targetRelativeArea - relativeArea) / 0.3
 
         print("________________________")
         print("xScore =", xScore)
@@ -78,10 +78,10 @@ class PatternFollow:  ## removed the thread part of this
 
         # If center color is left/right of drone's view
         if bestName == "xScore":
-            if x+(w/2) < self.cx:
+            if x+(w/2) < self.cx - (w/4):
                 self.drone.move_left()
                 print("move_left")
-            else:
+            elif x+(w/2) > self.cx + (w/4):
                 self.drone.move_right()
                 print("move_right")
             time.sleep(0.10)
@@ -89,10 +89,10 @@ class PatternFollow:  ## removed the thread part of this
         # If target area does not take up enough area of drone's view (too far away/close-up)
         elif bestName == "areaScore":
             print("Relative area: ", relativeArea)
-            if relativeArea < self.targetRelativeArea - .05:
+            if relativeArea < self.targetRelativeArea - .1:
                 self.drone.move_forward()
                 print("move_forward")
-            elif relativeArea > self.targetRelativeArea + .05:
+            elif relativeArea > self.targetRelativeArea + .1:
                 self.drone.move_backward()
                 print("move_backward")
             time.sleep(0.45)
@@ -100,10 +100,10 @@ class PatternFollow:  ## removed the thread part of this
         # If center color is too high/low in drone's view
         elif bestName == "yScore":
             # height indexes from the top down
-            if y+(h/2) > self.cy:
+            if y+(h/2) > self.cy + (h/4):
                 self.drone.move_down()
                 print("move_down")
-            else:
+            elif y+(h/2) < self.cy - (h/4):
                 self.drone.move_up()
                 print("move_up")
             time.sleep(0.2)

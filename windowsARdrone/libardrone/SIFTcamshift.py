@@ -99,13 +99,29 @@ class SIFTcamshift(threading.Thread):
             
         else: #from camShiftDemo
             prob = cv2.calcBackProject([hsv], [0], self.hist, [0, 180], 1)
-            #prob &= mask
-            term_crit = ( cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 50, 1)
-            track_box, self.track_window = cv2.CamShift(prob, self.track_window, term_crit)
-            try:
-                cv2.ellipse(vis1, track_box, (0, 0, 255), 2)
-            except:
-                print track_box
+            prob &= mask
+            
+            #opening removes the remanants in the background
+            kernel = np.ones((8,8),np.uint8)
+            prob = cv2.morphologyEx(prob, cv2.MORPH_OPEN, kernel)
+            
+            #thresholding to black adn white removes the grey areas of noise opening left
+            ret,prob = cv2.threshold(prob,127,255,cv2.THRESH_BINARY)
+            
+            #cv2.imshow("Mask", prob)
+            white = cv2.countNonZero(prob)
+            #print("white", white)
+            
+            #if there's any remnants remaining, don't look at them - only run if there's a Significant thing
+            if white > 1000:
+                term_crit = ( cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 50, 1)
+                track_box, self.track_window = cv2.CamShift(prob, self.track_window, term_crit)
+                try:
+                    cv2.ellipse(vis1, track_box, (0, 0, 255), 2)
+                except:
+                    print track_box
+            else:
+                self.track_window = None
         
         return vis1
 

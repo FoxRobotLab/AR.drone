@@ -46,11 +46,15 @@ def drawMatches(img1, kp1, img2, kp2, matches, colorImage):
         (x1,y1) = kp1[img1_idx].pt
         (x2,y2) = kp2[img2_idx].pt
         
+        #draw large-ish white circles around each of the keypoints
         cv2.circle(black, (int(x1),int(y1)), 10, (255, 255, 255), -1)  
         
+    #use closing to eliminate the white spots not in "clusters" - the noise keypoints
     kernel = np.ones((15,15),np.uint8)
     closing = cv2.morphologyEx(black, cv2.MORPH_CLOSE, kernel)
     
+    #find contour of the remaining white blob. There may be small noise blobs, but we're
+    #pretty sure that the largest is the one we want.
     _, contours, hierarchy = cv2.findContours(closing, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     cv2.contourArea(contours[0])
 
@@ -63,7 +67,9 @@ def drawMatches(img1, kp1, img2, kp2, matches, colorImage):
         if area > maxArea:
             maxArea = area
             largestContour = contour
-            
+    
+    #get the bounding rectangle (not rotated, because camshift Does Not Like That) of the
+    #large blob we found.
     rect = cv2.boundingRect(largestContour)
 
     return rect

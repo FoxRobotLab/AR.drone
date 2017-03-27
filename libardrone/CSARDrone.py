@@ -5,6 +5,9 @@ import time
 import threading
 
 class PatternFollow(threading.Thread):
+    """The threaded version has some issues with it so I recommend using the Unthreaded version of this code.
+    Many of the changes made in the Unthreaded version to improve it were not brought over
+    to this version i.e. color, movement correction, etc. """
     def __init__(self):
         threading.Thread.__init__(self)
         self.drone = libardrone.ARDrone(True)
@@ -37,15 +40,15 @@ class PatternFollow(threading.Thread):
     def patternReact(self, patternInfo):
         """"""
         (x, y), relativeArea, angle = patternInfo
-        
+
         xDiff = abs(x - self.cx)
         xScore = xDiff / (self.width / 2.0) * (7 / 6.0) # because the edges of the frame are cut off in MCS
-        
+
         yDiff = abs(y - self.cy)
         yScore = yDiff / (self.height / 2.0) * (5 / 4.0)
-        
+
         angleScore = abs(angle / 90) * 1.5
-        
+
         areaScore = abs(max((1 - relativeArea / self.targetRelativeArea), -1))
 
         print("Angle", angle)
@@ -57,17 +60,17 @@ class PatternFollow(threading.Thread):
         print("areaScore =", areaScore)
 
         scores = [("xScore", xScore), ("areaScore", areaScore), ("angleScore", angleScore), ("yScore", yScore)]
-        
+
         bestName, bestScore = scores[0]
-        
+
         for score in scores:
             name, num = score
             if num > bestScore:
                 bestName, bestScore = score
-                
+
         if bestScore < 0.4:
             return
-        
+
         if bestName == "xScore":
             if x < self.cx:
                 self.drone.turn_left()
@@ -147,6 +150,6 @@ class PatternFollow(threading.Thread):
         time.sleep(2)
         self.drone.reset()
         self.mcs.stop()
-        
+
 
 PatternFollow().start()

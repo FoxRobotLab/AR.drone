@@ -15,7 +15,6 @@ class PatternFollow:  ## removed the thread part of this
         self.cx, self.cy = self.width / 2, self.height / 2
         self.targetRelativeArea = 0.035
 
-
     def run(self):
         self.drone.speed = 1
         time.sleep(1)
